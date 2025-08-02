@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql" // Or your preferred DB (mysql, sqlite)
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String?
+  email     String    @unique
+  image     String? 
+  password  String    // Add this for credentials-based login
+  role      UserRole  @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  orders    Order[]
+  bookings  Booking[]
+}
+
+enum UserRole {
+  USER
+  ADMIN
+}
+
+model Booking {
+  id          String       @id @default(cuid())
+  userId      String
+  user        User         @relation(fields: [userId], references: [id])
+  bookingType BookingType
+  eventDate   DateTime
+  partySize   Int
+  status      BookingStatus @default(PENDING)
+  notes       String?
+  createdAt   DateTime     @default(now())
+}
+
+enum BookingType {
+  TABLE
+  BIRTHDAY
+  PARTY
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+model MenuItem {
+  id          String      @id @default(cuid())
+  name        String      @unique
+  description String
+  price       Float
+  category    String      // e.g., "Appetizer", "Main Course", "Dessert"
+  imageUrl    String      // URL from Vercel Blob
+  isAvailable Boolean     @default(true)
+  orderItems  OrderItem[]
+}
+
+model Order {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  status     String      @default("PENDING") // e.g., PENDING, COMPLETED, CANCELLED
+  totalPrice Float
+  createdAt  DateTime    @default(now())
+  items      OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  order      Order    @relation(fields: [orderId], references: [id])
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  price      Float    // Price at the time of order
+}
+
+// Model to control site content from the dashboard
+model SiteSettings {
+  id          String @id @default(cuid())
+  key         String @unique // e.g., "heroImageUrl", "announcementText"
+  value       String
+  updatedAt   DateTime @updatedAt
+}
