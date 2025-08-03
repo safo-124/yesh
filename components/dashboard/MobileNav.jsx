@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Utensils, Calendar, Users, Settings, PanelLeft } from 'lucide-react';
+import { Home, Utensils, Calendar, Users, Settings, PanelLeft, ShoppingCart } from 'lucide-react';
 import { 
   Sheet, 
   SheetContent, 
@@ -23,6 +23,7 @@ export default function MobileNav() {
     { href: '/dashboard', label: 'Overview', icon: Home },
     { href: '/dashboard/bookings', label: 'Bookings', icon: Calendar },
     { href: '/dashboard/menu-management', label: 'Menu', icon: Utensils },
+     { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
     { href: '/dashboard/users', label: 'Users', icon: Users },
     { href: '/dashboard/site-settings', label: 'Site Settings', icon: Settings },
   ];

@@ -60,6 +60,7 @@ model MenuItem {
   category    String      // e.g., "Appetizer", "Main Course", "Dessert"
   imageUrl    String      // URL from Vercel Blob
   isAvailable Boolean     @default(true)
+  isFeatured  Boolean     @default(false)
   orderItems  OrderItem[]
 }
 
@@ -89,4 +90,12 @@ model SiteSettings {
   key         String @unique // e.g., "heroImageUrl", "announcementText"
   value       String
   updatedAt   DateTime @updatedAt
+}
+
+model GalleryImage {
+  id        String   @id @default(cuid())
+  imageUrl  String
+  altText   String?  // Optional alt text for images
+  order     Int      @default(0) // For reordering images later
+  createdAt DateTime @default(now())
 }
