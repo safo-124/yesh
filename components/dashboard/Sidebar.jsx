@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Utensils, Calendar, Users, Settings, ShoppingCart } from 'lucide-react';
+import { Home, Utensils, Calendar, Users, Settings, ShoppingCart, ImageIcon, BookUser } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 
@@ -14,7 +14,9 @@ export default function Sidebar() {
     { href: '/dashboard/bookings', label: 'Bookings', icon: Calendar },
      { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
     { href: '/dashboard/menu-management', label: 'Menu', icon: Utensils },
+     { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon },
     { href: '/dashboard/users', label: 'Users', icon: Users },
+    { href: '/dashboard/about-management', label: 'About Page', icon: BookUser },
     { href: '/dashboard/site-settings', label: 'Site Settings', icon: Settings },
   ];
 

@@ -27,7 +27,7 @@ export default function Navbar() {
   const otherPages = [
     { title: "Our Story", href: "/about", icon: Info },
     { title: "Gallery", href: "/gallery", icon: ImageIcon },
-    { title: "Contact Us", href: "/contact", icon: Phone },
+     { title: "Contact Us", href: "/contact", icon: Phone },
   ];
 
   const navItemVariants = {

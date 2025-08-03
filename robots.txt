@@ -1,0 +1,9 @@
+// https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow crawling of the admin dashboard and API routes
+Disallow: /dashboard/
+Disallow: /api/
+
+Sitemap: https://www.gloryland.com/sitemap.xml # Replace with your actual domain

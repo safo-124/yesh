@@ -1,4 +1,4 @@
-'use client';
+'use-client';
 
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
@@ -12,19 +12,16 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User, LayoutDashboard } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, ShoppingCart, CalendarCheck } from 'lucide-react';
 
-// We need to fetch the full user from the DB to check the role
-// This component should receive the user object from a server component
 export default function UserNav({ user }) {
-  // `user.name` might be null, get first letter of email as fallback
   const fallback = user.name?.charAt(0) || user.email.charAt(0);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Avatar className="h-10 w-10 border-2 border-amber-400">
             <AvatarImage src={user.image} alt={user.name} />
             <AvatarFallback>{fallback.toUpperCase()}</AvatarFallback>
           </Avatar>
@@ -42,8 +39,14 @@ export default function UserNav({ user }) {
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <Link href="/orders">
-            <User className="mr-2 h-4 w-4" />
+            <ShoppingCart className="mr-2 h-4 w-4" />
             <span>My Orders</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild>
+          <Link href="/bookings">
+            <CalendarCheck className="mr-2 h-4 w-4" />
+            <span>My Bookings</span>
           </Link>
         </DropdownMenuItem>
         {user.role === 'ADMIN' && (

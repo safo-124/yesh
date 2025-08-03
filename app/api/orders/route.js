@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { Resend } from 'resend';
+import OrderConfirmationEmail from '@/components/emails/OrderConfirmationEmail';
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(request) {
   const session = await getServerSession(authOptions);
@@ -17,32 +21,19 @@ export async function POST(request) {
   }
 
   try {
-    // SECURITY: Fetch the actual prices from the database to prevent client-side price tampering.
     const itemIds = cartItems.map((item) => item.id);
-    const dbItems = await prisma.menuItem.findMany({
-      where: {
-        id: { in: itemIds },
-      },
-    });
+    const dbItems = await prisma.menuItem.findMany({ where: { id: { in: itemIds } } });
 
     const dbItemMap = new Map(dbItems.map((item) => [item.id, item]));
-
     let total = 0;
-    for (const cartItem of cartItems) {
-      const dbItem = dbItemMap.get(cartItem.id);
-      if (!dbItem) {
-        throw new Error(`Item with ID ${cartItem.id} not found.`);
-      }
-      total += dbItem.price * cartItem.quantity;
-    }
+    cartItems.forEach(cartItem => {
+        const dbItem = dbItemMap.get(cartItem.id);
+        if(dbItem) total += dbItem.price * cartItem.quantity;
+    });
 
-    // Use a Prisma transaction to ensure all or nothing is written to the database.
     const newOrder = await prisma.$transaction(async (tx) => {
       const order = await tx.order.create({
-        data: {
-          userId: session.user.id,
-          totalPrice: total,
-        },
+        data: { userId: session.user.id, totalPrice: total },
       });
 
       const orderItemsData = cartItems.map((cartItem) => {
@@ -51,16 +42,34 @@ export async function POST(request) {
           orderId: order.id,
           menuItemId: cartItem.id,
           quantity: cartItem.quantity,
-          price: dbItem.price, // Use the server-verified price
+          price: dbItem.price,
         };
       });
 
-      await tx.orderItem.createMany({
-        data: orderItemsData,
-      });
-
+      await tx.orderItem.createMany({ data: orderItemsData });
       return order;
     });
+
+    // --- SEND CONFIRMATION EMAIL ---
+    try {
+        const orderItemsWithDetails = await prisma.orderItem.findMany({
+            where: { orderId: newOrder.id },
+            include: { menuItem: { select: { name: true }}}
+        });
+
+      await resend.emails.send({
+        from: 'Gloryland Orders <onboarding@resend.dev>',
+        to: [session.user.email],
+        subject: `Your Gloryland Order Confirmation (#${newOrder.id.substring(0,8)})`,
+        react: <OrderConfirmationEmail 
+            orderDetails={{ name: session.user.name, orderId: newOrder.id, total }}
+            orderItems={orderItemsWithDetails}
+        />,
+      });
+    } catch (emailError) {
+      console.error("Email sending failed:", emailError);
+    }
+    // --- END EMAIL LOGIC ---
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {

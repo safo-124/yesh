@@ -99,3 +99,14 @@ model GalleryImage {
   order     Int      @default(0) // For reordering images later
   createdAt DateTime @default(now())
 }
+
+model AboutSection {
+  id        String   @id @default(cuid())
+  title     String   // e.g., "THE RESTAURANT", "THE CHEF"
+  subtitle  String?  // e.g., "A Dream in the Hills", "Chef Adjei"
+  content   String   @db.Text
+  imageUrl  String
+  imagePosition String @default("right") // "left" or "right"
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
