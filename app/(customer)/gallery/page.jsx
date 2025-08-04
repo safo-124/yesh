@@ -1,11 +1,10 @@
 import prisma from '@/lib/prisma';
 import GalleryClient from '@/components/customer/GalleryClient';
-import { motion } from 'framer-motion';
 
 async function getGalleryImages() {
   try {
     const images = await prisma.galleryImage.findMany({
-      orderBy: { createdAt: 'desc' }, // Show newest images first
+      orderBy: { createdAt: 'desc' },
     });
     return images;
   } catch (error) {
@@ -20,9 +19,7 @@ export default async function GalleryPage() {
   return (
     <div className="bg-white py-20 md:py-24">
       <div className="container mx-auto">
-        <div 
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight" style={{ color: '#8B4513' }}>
             Our Gallery
           </h1>
