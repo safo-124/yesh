@@ -21,11 +21,13 @@ model User {
   updatedAt DateTime  @updatedAt
   orders    Order[]
   bookings  Booking[]
+   reviews Review[] // Add this relation
 }
 
 enum UserRole {
   USER
   ADMIN
+   CASHIER 
 }
 
 model Booking {
@@ -62,12 +64,13 @@ model MenuItem {
   isAvailable Boolean     @default(true)
   isFeatured  Boolean     @default(false)
   orderItems  OrderItem[]
+  reviews Review[] // Add this relation
 }
 
 model Order {
   id         String      @id @default(cuid())
-  userId     String
-  user       User        @relation(fields: [userId], references: [id])
+ userId     String? 
+ user       User?       @relation(fields: [userId], references: [id]) 
   status     String      @default("PENDING") // e.g., PENDING, COMPLETED, CANCELLED
   totalPrice Float
   createdAt  DateTime    @default(now())
@@ -109,4 +112,19 @@ model AboutSection {
   imagePosition String @default("right") // "left" or "right"
   order     Int      @default(0)
   createdAt DateTime @default(now())
+}
+
+model Review {
+  id         String   @id @default(cuid())
+  rating     Int      // Rating from 1 to 5
+  comment    String?  @db.Text
+  createdAt  DateTime @default(now())
+  
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  @@unique([userId, menuItemId]) // A user can only review a menu item once
 }

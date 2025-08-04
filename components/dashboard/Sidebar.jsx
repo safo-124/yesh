@@ -2,23 +2,31 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Utensils, Calendar, Users, Settings, ShoppingCart, ImageIcon, BookUser } from 'lucide-react';
+import { Home, Utensils, Calendar, Users, Settings, BookUser, ShoppingCart, ImageIcon, ClipboardPenLine } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import { cn } from '@/lib/utils';
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const { data: session } = useSession();
+  const userRole = session?.user?.role;
 
-  const navLinks = [
-    { href: '/dashboard', label: 'Overview', icon: Home },
-    { href: '/dashboard/bookings', label: 'Bookings', icon: Calendar },
-     { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart },
-    { href: '/dashboard/menu-management', label: 'Menu', icon: Utensils },
-     { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon },
-    { href: '/dashboard/users', label: 'Users', icon: Users },
-    { href: '/dashboard/about-management', label: 'About Page', icon: BookUser },
-    { href: '/dashboard/site-settings', label: 'Site Settings', icon: Settings },
+  const allNavLinks = [
+    { href: '/dashboard', label: 'Overview', icon: Home, roles: ['ADMIN', 'CASHIER'] },
+    { href: '/dashboard/pos', label: 'Point of Sale', icon: ClipboardPenLine, roles: ['ADMIN', 'CASHIER'] },
+    { href: '/dashboard/bookings', label: 'Bookings', icon: Calendar, roles: ['ADMIN', 'CASHIER'] },
+    { href: '/dashboard/orders', label: 'Orders', icon: ShoppingCart, roles: ['ADMIN', 'CASHIER'] },
+    { href: '/dashboard/menu-management', label: 'Menu', icon: Utensils, roles: ['ADMIN', 'CASHIER'] },
+    { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon, roles: ['ADMIN'] },
+    { href: '/dashboard/users', label: 'Users', icon: Users, roles: ['ADMIN'] },
+    { href: '/dashboard/about-management', label: 'About Page', icon: BookUser, roles: ['ADMIN'] },
+    { href: '/dashboard/site-settings', label: 'Site Settings', icon: Settings, roles: ['ADMIN'] },
   ];
+
+  // Filter links based on the user's role
+  const navLinks = allNavLinks.filter(link => userRole && link.roles.includes(userRole));
 
   const sidebarVariants = {
     hidden: { x: -100, opacity: 0 },
@@ -29,14 +37,18 @@ export default function Sidebar() {
     hover: { scale: 1.05, x: 5, color: "#DAA520" },
     tap: { scale: 0.95 },
   };
+  
+  // Render nothing until the session is loaded to prevent a flicker
+  if (!session) {
+    return null; 
+  }
 
   return (
     <motion.aside 
       className="hidden md:block w-64 flex-col text-white"
-      // 👇 This is the updated style section
       style={{
-        backgroundColor: 'rgba(139, 69, 19, 0.95)', // SaddleBrown at 95% opacity
-        backdropFilter: 'saturate(180%) blur(10px)', // Glassmorphism effect
+        backgroundColor: 'rgba(139, 69, 19, 0.95)',
+        backdropFilter: 'saturate(180%) blur(10px)',
       }}
       initial="hidden"
       animate="visible"
@@ -57,9 +69,10 @@ export default function Sidebar() {
                 <motion.div key={link.href} whileHover="hover" whileTap="tap" variants={linkVariants}>
                   <Link
                     href={link.href}
-                    className={`flex items-center gap-3 rounded-lg px-3 py-3 transition-all ${
+                    className={cn(
+                      'flex items-center gap-3 rounded-lg px-3 py-3 transition-all relative',
                       isActive ? 'text-white font-bold' : 'text-gray-300'
-                    }`}
+                    )}
                   >
                     {isActive && (
                       <motion.div 
@@ -69,7 +82,7 @@ export default function Sidebar() {
                         transition={{ duration: 0.6, type: "spring" }}
                       />
                     )}
-                    <link.icon className={`h-5 w-5 ${isActive ? 'text-amber-300' : ''}`} />
+                    <link.icon className={cn('h-5 w-5', isActive && 'text-amber-300')} />
                     {link.label}
                   </Link>
                 </motion.div>
