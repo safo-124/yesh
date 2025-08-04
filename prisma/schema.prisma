@@ -128,3 +128,21 @@ model Review {
 
   @@unique([userId, menuItemId]) // A user can only review a menu item once
 }
+
+model HomepageSection {
+  id          String   @id @default(cuid())
+  type        String   // e.g., 'HERO', 'CONTENT_IMAGE', 'FEATURED_ITEMS'
+  order       Int      // For drag-and-drop reordering
+  
+  // Fields for all possible content
+  title       String?
+  subtitle    String?
+  content     String?  @db.Text
+  imageUrl    String?
+  videoUrl    String?
+  buttonText  String?
+  buttonLink  String?
+  layout      String?  // e.g., 'image-left', 'image-right'
+
+  createdAt   DateTime @default(now())
+}

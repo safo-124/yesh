@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Utensils, Calendar, Users, Settings, BookUser, ShoppingCart, ImageIcon, ClipboardPenLine } from 'lucide-react';
+import { Home, Utensils, Calendar, Users, Settings, BookUser, ShoppingCart, ImageIcon, ClipboardPenLine, PanelBottom, LayoutTemplate } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
@@ -22,6 +22,8 @@ export default function Sidebar() {
     { href: '/dashboard/gallery', label: 'Gallery', icon: ImageIcon, roles: ['ADMIN'] },
     { href: '/dashboard/users', label: 'Users', icon: Users, roles: ['ADMIN'] },
     { href: '/dashboard/about-management', label: 'About Page', icon: BookUser, roles: ['ADMIN'] },
+    { href: '/dashboard/homepage-management', label: 'Homepage', icon: LayoutTemplate, roles: ['ADMIN'] }, // <-- ADD THIS
+    { href: '/dashboard/footer-management', label: 'Footer', icon: PanelBottom, roles: ['ADMIN'] }, 
     { href: '/dashboard/site-settings', label: 'Site Settings', icon: Settings, roles: ['ADMIN'] },
   ];
 
