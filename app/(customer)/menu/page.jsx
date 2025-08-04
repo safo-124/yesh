@@ -1,22 +1,19 @@
-import prisma from '@/lib/prisma';
 import MenuItemCard from '@/components/customer/MenuItemCard';
 
+// This function now fetches from our API endpoint
 async function getGroupedMenuItems() {
-  const menuItems = await prisma.menuItem.findMany({
-    where: { isAvailable: true },
-    orderBy: [ // <-- The fix is to use an array here
-      { category: 'asc' },
-      { name: 'asc' },
-    ],
-  });
+  // Use the full URL for server-side fetching in Next.js
+  const response = await fetch(`${process.env.NEXTAUTH_URL}/api/menu`, { cache: 'no-store' });
+  if (!response.ok) {
+    console.error("Failed to fetch menu");
+    return {};
+  }
+  const menuItems = await response.json();
 
   // Group items by category
   const grouped = menuItems.reduce((acc, item) => {
-    // Use a default "Featured" category if one isn't provided
-    const category = item.category || 'Featured';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
+    const category = item.category || 'Other';
+    if (!acc[category]) acc[category] = [];
     acc[category].push(item);
     return acc;
   }, {});
@@ -42,7 +39,7 @@ export default async function MenuPage() {
         <div className="space-y-16">
           {Object.entries(groupedMenuItems).map(([category, items]) => (
             <section key={category}>
-              <h2 className="text-3xl font-bold border-b-2 border-yellow-500 pb-4 mb-8">
+              <h2 className="text-3xl font-bold border-b-2 border-primary pb-4 mb-8">
                 {category}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

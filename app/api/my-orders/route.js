@@ -16,11 +16,11 @@ export async function GET() {
         userId: session.user.id,
       },
       include: {
-        // Include the items for each order
         items: {
           include: {
             menuItem: {
               select: {
+                id: true, // <-- ADD THIS LINE
                 name: true,
                 imageUrl: true,
               },

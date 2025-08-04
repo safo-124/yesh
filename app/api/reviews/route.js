@@ -13,11 +13,9 @@ export async function POST(request) {
   try {
     const { rating, comment, menuItemId } = await request.json();
 
-    if (!rating || !menuItemId) {
-      return NextResponse.json({ error: 'Rating and menu item are required.' }, { status: 400 });
+    if (!rating || !menuItemId || rating < 1 || rating > 5) {
+      return NextResponse.json({ error: 'A rating between 1 and 5 and a menu item ID are required.' }, { status: 400 });
     }
-
-    // You could add logic here to verify the user has actually ordered this item before
     
     const newReview = await prisma.review.create({
       data: {
@@ -30,7 +28,6 @@ export async function POST(request) {
 
     return NextResponse.json(newReview, { status: 201 });
   } catch (error) {
-    // Handle unique constraint error (user already reviewed)
     if (error.code === 'P2002') {
         return NextResponse.json({ error: 'You have already reviewed this item.' }, { status: 409 });
     }

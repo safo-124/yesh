@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { Resend } from 'resend';
 import OrderConfirmationEmail from '@/components/emails/OrderConfirmationEmail';
+import { pusherServer } from '@/lib/pusher';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -69,7 +70,15 @@ export async function POST(request) {
     } catch (emailError) {
       console.error("Email sending failed:", emailError);
     }
-    // --- END EMAIL LOGIC ---
+    
+    // --- TRIGGER PUSHER EVENT ---
+    try {
+        await pusherServer.trigger('dashboard-channel', 'new-order', {
+            message: `New order #${newOrder.id.substring(0,8)} placed by ${session.user.name}.`,
+        });
+    } catch (error) {
+        console.error("Pusher trigger failed:", error);
+    }
 
     return NextResponse.json(newOrder, { status: 201 });
   } catch (error) {

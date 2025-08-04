@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth'; // <-- CORRECTED IMPORT
+import { authOptions } from '@/lib/auth';
 import prisma from '@/lib/prisma';
+import { pusherServer } from '@/lib/pusher';
 
 /**
- * Handles GET requests to fetch bookings.
- * Used by the admin dashboard. Supports filtering by status and searching by user name.
+ * Handles GET requests to fetch bookings for the admin dashboard.
+ * Supports filtering by status and searching by user name.
  */
 export async function GET(request) {
   const session = await getServerSession(authOptions);
@@ -19,48 +20,28 @@ export async function GET(request) {
   const search = searchParams.get('search');
 
   let whereClause = {};
-
-  if (status) {
-    whereClause.status = status;
-  }
-
+  if (status) whereClause.status = status;
   if (search) {
     whereClause.user = {
-      name: {
-        contains: search,
-        mode: 'insensitive',
-      },
+      name: { contains: search, mode: 'insensitive' },
     };
   }
 
   try {
     const bookings = await prisma.booking.findMany({
       where: whereClause,
-      include: {
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-      },
-      orderBy: {
-        eventDate: 'asc',
-      },
+      include: { user: { select: { name: true, email: true } } },
+      orderBy: { eventDate: 'asc' },
     });
     return NextResponse.json(bookings);
   } catch (error) {
     console.error("Fetch Bookings Error:", error);
-    return NextResponse.json(
-      { error: 'Failed to fetch bookings' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch bookings' }, { status: 500 });
   }
 }
 
 /**
- * Handles POST requests to create a new booking.
- * Used by the customer booking form.
+ * Handles POST requests from customers to create a new booking.
  */
 export async function POST(request) {
   const session = await getServerSession(authOptions);
@@ -71,12 +52,10 @@ export async function POST(request) {
 
   try {
     const data = await request.json();
-
     if (!data.bookingType || !data.eventDate || !data.partySize) {
-        return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
+      return NextResponse.json({ error: 'Missing required fields.' }, { status: 400 });
     }
 
-    // 👇 THIS IS THE CORRECTED SECTION 👇
     const newBooking = await prisma.booking.create({
       data: {
         bookingType: data.bookingType,
@@ -84,19 +63,23 @@ export async function POST(request) {
         partySize: parseInt(data.partySize, 10),
         notes: data.notes || null,
         status: 'PENDING',
-        // Connect the booking to the logged-in user
-        user: {
-          connect: {
-            id: session.user.id,
-          },
-        },
+        user: { connect: { id: session.user.id } },
       },
     });
-    // END of corrected section
+
+    // --- TRIGGER PUSHER EVENT ---
+    try {
+      await pusherServer.trigger('dashboard-channel', 'new-booking', {
+        message: `New booking request for ${newBooking.partySize} guests from ${session.user.name}.`,
+      });
+    } catch (error) {
+      console.error("Pusher trigger failed:", error);
+    }
+    // --- END PUSHER LOGIC ---
 
     return NextResponse.json(newBooking, { status: 201 });
   } catch (error) {
-    console.error("Create Booking Error:", error);
+    console.error("Booking Error:", error);
     return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 });
   }
 }
