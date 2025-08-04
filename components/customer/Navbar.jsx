@@ -10,8 +10,8 @@ import {
   DropdownMenuItem, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet'; // Import SheetClose
-import { Menu, ChevronDown, BookOpen, Image as ImageIcon, Info, Phone, CalendarCheck, ShoppingCart } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
+import { Menu, ChevronDown, Info, Image as ImageIcon, Phone, CalendarCheck, ShoppingCart, PartyPopper } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 import UserNav from './UserNav';
 import CartButton from './CartButton';
@@ -51,6 +51,14 @@ export default function Navbar() {
                     <Link href="/menu">Our Menu</Link>
                 </Button>
             </motion.div>
+
+            {/* ADDED "EVENTS" AS A MAIN LINK */}
+            <motion.div variants={navItemVariants} whileHover="hover" whileTap="tap">
+                <Button variant="ghost" asChild className="text-gray-200 font-semibold text-base">
+                    <Link href="/events">Events</Link>
+                </Button>
+            </motion.div>
+
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <motion.div variants={navItemVariants} whileHover="hover" whileTap="tap">
@@ -95,9 +103,7 @@ export default function Navbar() {
                 </div>
             )}
             
-            {/* VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV */}
-            {/* VVV THIS IS THE CORRECTED MOBILE MENU VVV */}
-            {/* VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVV */}
+            {/* Mobile Menu Trigger */}
             <div className="lg:hidden">
               <Sheet>
                 <SheetTrigger asChild>
@@ -110,7 +116,8 @@ export default function Navbar() {
                 </SheetTrigger>
                 <SheetContent side="right" className="text-white p-6 flex flex-col" style={{ backgroundColor: '#8B4513' }}>
                   <nav className="grid gap-6 text-lg font-medium mt-8">
-                    <SheetClose asChild><Link href="/menu" className="flex items-center gap-2 hover:text-amber-300"><BookOpen/>Our Menu</Link></SheetClose>
+                    <SheetClose asChild><Link href="/menu" className="flex items-center gap-2 hover:text-amber-300">Our Menu</Link></SheetClose>
+                    <SheetClose asChild><Link href="/events" className="flex items-center gap-2 hover:text-amber-300"><PartyPopper className="h-5 w-5"/>Events</Link></SheetClose>
                     <SheetClose asChild><Link href="/about" className="flex items-center gap-2 hover:text-amber-300"><Info/>Our Story</Link></SheetClose>
                     <SheetClose asChild><Link href="/gallery" className="flex items-center gap-2 hover:text-amber-300"><ImageIcon/>Gallery</Link></SheetClose>
                     <SheetClose asChild><Link href="/contact" className="flex items-center gap-2 hover:text-amber-300"><Phone/>Contact</Link></SheetClose>

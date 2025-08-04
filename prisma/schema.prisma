@@ -146,3 +146,14 @@ model HomepageSection {
 
   createdAt   DateTime @default(now())
 }
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique // For the URL, e.g., /events/live-music-night
+  description String   @db.Text
+  imageUrl    String
+  eventDate   DateTime
+  createdAt   DateTime @default(now())
+  isPublished Boolean  @default(false)
+}
