@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import PreLoader from './PreLoader';
-import Navbar from './Navbar';
+
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -146,7 +146,7 @@ export default function HomePageClient({ homepageSections, featuredItems, galler
             animate={{ opacity: 1 }}
             transition={{ duration: 0.8, delay: 0.2 }}
         >
-            <Navbar />
+          
 
             <main>
               {homepageSections.map((section, index) => (

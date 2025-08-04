@@ -4,7 +4,14 @@ import { useState } from 'react';
 import { useCartStore } from '@/stores/cartStore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+} from '@/components/ui/sheet';
 import Image from 'next/image';
 import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -45,10 +52,13 @@ export default function CartDrawer({ isOpen, setIsOpen }) {
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent className="flex w-full flex-col pr-0 sm:max-w-lg">
-        <SheetHeader className="px-6">
+        <SheetHeader className="px-6 pt-6">
           <SheetTitle>Your Order</SheetTitle>
+          <SheetDescription>
+            Review the items in your cart below before proceeding to checkout.
+          </SheetDescription>
         </SheetHeader>
-        <div className="flex-1 overflow-y-auto px-6">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center">
               <p className="text-muted-foreground">Your cart is empty.</p>

@@ -1,4 +1,4 @@
-'use-client';
+'use client';
 
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
@@ -12,17 +12,22 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User, LayoutDashboard, ShoppingCart, CalendarCheck } from 'lucide-react';
+import { LogOut, LayoutDashboard, ShoppingCart, CalendarCheck } from 'lucide-react';
 
 export default function UserNav({ user }) {
-  const fallback = user.name?.charAt(0) || user.email.charAt(0);
+  // Ensure user object exists to prevent errors during rendering
+  if (!user) {
+    return null;
+  }
+  
+  const fallback = user.name?.charAt(0) || user.email?.charAt(0) || 'U';
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10 border-2 border-amber-400">
-            <AvatarImage src={user.image} alt={user.name} />
+            <AvatarImage src={user.image} alt={user.name || 'User Avatar'} />
             <AvatarFallback>{fallback.toUpperCase()}</AvatarFallback>
           </Avatar>
         </Button>
